@@ -11,20 +11,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up Python 3.x
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y sshpass python3-pip python3-dev libffi-dev libssl-dev
+          sudo apt-get install -y sshpass python3-venv
+
+      - name: Create and activate virtual environment
+        run: |
+          python3 -m venv ansible-venv
+          source ansible-venv/bin/activate
+          pip install --upgrade pip
 
       - name: Install Python requirements
         run: |
-          sudo pip3 install --upgrade pip
-          sudo pip3 install ansible "passlib>=1.7.4"
-
-      - name: Verify installations
-        run: |
-          ansible --version
-          pip3 show passlib
+          source ansible-venv/bin/activate
+          pip install ansible passlib
 
       - name: Prepare inventory
         env:
@@ -38,6 +44,7 @@ jobs:
         env:
           HASH_PASS: ${{ secrets.HASH_PASSWORD }}
         run: |
+          source ansible-venv/bin/activate
           ansible-playbook \
             -i ansible/inventory.ini \
             -e "hash_password=$HASH_PASS" \
