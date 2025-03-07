@@ -1,5 +1,4 @@
+# ansible/roles/server-setup/vars/main.yml
 ---
-user_password: "0708"  # Заме---
 user_name: "hash"
-docker_users:
-  - "{{ user_name }}"ните на зашифрованный пароль через Ansible Vault!
+docker_users: ["{{ user_name }}"]

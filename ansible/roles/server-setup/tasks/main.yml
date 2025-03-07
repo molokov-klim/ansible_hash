@@ -1,3 +1,4 @@
+# ansible/roles/server-setup/tasks/main.yml
 ---
 - name: Create user 'hash'
   user:
@@ -5,7 +6,6 @@
     password: "{{ hash_password | password_hash('sha512') }}"
     groups: sudo,docker
     shell: /bin/bash
-    append: yes
 
 - name: Configure passwordless sudo
   copy:
@@ -19,21 +19,18 @@
       - docker.io
       - docker-compose
     update_cache: yes
-    state: present
 
-- name: Ensure SSH password auth
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    regexp: '^PasswordAuthentication'
-    line: 'PasswordAuthentication yes'
+- name: Configure SSH
+  block:
+    - name: Enable password auth
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PasswordAuthentication'
+        line: 'PasswordAuthentication yes'
+        
+    - name: Keep root login
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PermitRootLogin'
+        line: 'PermitRootLogin yes'
   notify: restart sshd
-
-- name: Keep root login enabled
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    regexp: '^PermitRootLogin'
-    line: 'PermitRootLogin yes'
-  notify: restart sshd
-
-- name: Reload SSH configuration
-  meta: flush_handlers
