@@ -1,0 +1,39 @@
+---
+- name: Create user 'hash'
+  user:
+    name: "{{ user_name }}"
+    password: "{{ hash_password | password_hash('sha512') }}"
+    groups: sudo,docker
+    shell: /bin/bash
+    append: yes
+
+- name: Configure passwordless sudo
+  copy:
+    dest: /etc/sudoers.d/{{ user_name }}
+    content: "{{ user_name }} ALL=(ALL) NOPASSWD: ALL"
+    validate: 'visudo -cf %s'
+
+- name: Install Docker stack
+  apt:
+    name:
+      - docker.io
+      - docker-compose
+    update_cache: yes
+    state: present
+
+- name: Ensure SSH password auth
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PasswordAuthentication'
+    line: 'PasswordAuthentication yes'
+  notify: restart sshd
+
+- name: Keep root login enabled
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PermitRootLogin'
+    line: 'PermitRootLogin yes'
+  notify: restart sshd
+
+- name: Reload SSH configuration
+  meta: flush_handlers

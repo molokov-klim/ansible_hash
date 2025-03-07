@@ -1,0 +1,35 @@
+name: Auto-Server-Setup
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  provision:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Ansible
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sshpass ansible
+
+      - name: Run Ansible Playbook
+        env:
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          ROOT_PASS: ${{ secrets.ROOT_PASSWORD }}
+          HASH_PASS: ${{ secrets.HASH_PASSWORD }}
+        run: |
+          ansible-playbook \
+            -i "ansible/inventory.ini" \
+            -u root \
+            -k \
+            -e "ansible_ssh_pass=$ROOT_PASS" \
+            -e "hash_password=$HASH_PASS" \
+            ansible/playbook.yml
+
+      - name: Validate Setup
+        run: |
+          sshpass -p "$HASH_PASS" ssh -o StrictHostKeyChecking=no hash@${{ secrets.SERVER_IP }} \
+            "sudo docker run --rm hello-world"
