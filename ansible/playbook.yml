@@ -1,7 +1,12 @@
+# ansible/playbook.yml
 ---
 - hosts: all
-  gather_facts: false
-  vars_files:
-    - ./roles/server-setup/vars/main.yml
+  pre_tasks:
+    - name: Ensure passlib is installed (local)
+      delegate_to: localhost
+      become: true
+      pip:
+        name: passlib
+        state: present
   roles:
-    - role: server-setup
+    - server-setup

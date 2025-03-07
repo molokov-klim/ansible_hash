@@ -11,11 +11,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Ansible
+      - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y sshpass python3-pip
-          sudo pip3 install ansible passlib
+          sudo apt-get install -y sshpass python3-pip python3-dev libffi-dev libssl-dev
+
+      - name: Install Python requirements
+        run: |
+          sudo pip3 install --upgrade pip
+          sudo pip3 install ansible "passlib>=1.7.4"
+
+      - name: Verify installations
+        run: |
+          ansible --version
+          pip3 show passlib
 
       - name: Prepare inventory
         env:
