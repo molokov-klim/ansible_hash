@@ -1,36 +1,16 @@
 # ansible/roles/server-setup/tasks/main.yml
 ---
-- name: Create user 'hash'
-  user:
-    name: "{{ user_name }}"
+- name: Ensure the hash user exists
+  ansible.builtin.user:
+    name: hash
     password: "{{ hash_password | password_hash('sha512') }}"
-    groups: sudo,docker
     shell: /bin/bash
+    create_home: yes
+    state: present
 
-- name: Configure passwordless sudo
-  copy:
-    dest: /etc/sudoers.d/{{ user_name }}
-    content: "{{ user_name }} ALL=(ALL) NOPASSWD: ALL"
+- name: Add hash user to sudoers
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers.d/hash
+    line: 'hash ALL=(ALL) NOPASSWD:ALL'
+    create: yes
     validate: 'visudo -cf %s'
-
-- name: Install Docker stack
-  apt:
-    name:
-      - docker.io
-      - docker-compose
-    update_cache: yes
-
-- name: Configure SSH
-  block:
-    - name: Enable password auth
-      lineinfile:
-        path: /etc/ssh/sshd_config
-        regexp: '^PasswordAuthentication'
-        line: 'PasswordAuthentication yes'
-        
-    - name: Keep root login
-      lineinfile:
-        path: /etc/ssh/sshd_config
-        regexp: '^PermitRootLogin'
-        line: 'PermitRootLogin yes'
-  notify: restart sshd

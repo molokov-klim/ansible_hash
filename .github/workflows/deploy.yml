@@ -1,56 +1,26 @@
 # .github/workflows/deploy.yml
-name: Auto-Server-Setup
+---
+name: Deploy Ansible to VPS
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
-  provision:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Set up Python 3.x
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
+      - name: Install Ansible
+        run: sudo apt update && sudo apt install -y ansible
 
-      - name: Install system dependencies
+      - name: Run Ansible playbook
         run: |
-          sudo apt-get update
-          sudo apt-get install -y sshpass python3-venv
-
-      - name: Create and activate virtual environment
-        run: |
-          python3 -m venv ansible-venv
-          source ansible-venv/bin/activate
-          pip install --upgrade pip
-
-      - name: Install Python requirements
-        run: |
-          source ansible-venv/bin/activate
-          pip install ansible passlib
-
-      - name: Prepare inventory
+          ansible-playbook ansible/playbook.yml -i ansible/inventory.ini
         env:
           SERVER_IP: ${{ secrets.SERVER_IP }}
-          ROOT_PASS: ${{ secrets.ROOT_PASSWORD }}
-        run: |
-          sed -i "s/%SERVER_IP%/$SERVER_IP/g" ansible/inventory.ini
-          sed -i "s/%ROOT_PASSWORD%/$ROOT_PASS/g" ansible/inventory.ini
-
-      - name: Run Ansible Playbook
-        env:
-          HASH_PASS: ${{ secrets.HASH_PASSWORD }}
-        run: |
-          source ansible-venv/bin/activate
-          ansible-playbook \
-            -i ansible/inventory.ini \
-            -e "hash_password=$HASH_PASS" \
-            ansible/playbook.yml
-
-      - name: Validate Setup
-        run: |
-          sshpass -p "$HASH_PASS" ssh -o StrictHostKeyChecking=no hash@${{ secrets.SERVER_IP }} \
-            "sudo docker run --rm hello-world"
+          ROOT_PASSWORD: ${{ secrets.ROOT_PASSWORD }}
+          HASH_PASSWORD: ${{ secrets.HASH_PASSWORD }}

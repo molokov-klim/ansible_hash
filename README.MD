@@ -14,6 +14,8 @@ your-repo/
 │   ├── playbook.yml
 │   └── roles/
 │       └── server-setup/
+│           ├── handlers/
+│           │   └── main.yml
 │           ├── tasks/
 │           │   └── main.yml
 │           └── vars/

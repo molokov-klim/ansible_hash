@@ -1,6 +1,1 @@
 # ansible/roles/server-setup/handlers/main.yml
----
-- name: restart sshd
-  service:
-    name: ssh
-    state: restarted

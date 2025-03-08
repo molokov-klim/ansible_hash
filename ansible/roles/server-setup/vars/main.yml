@@ -1,4 +1,3 @@
 # ansible/roles/server-setup/vars/main.yml
 ---
-user_name: "hash"
-docker_users: ["{{ user_name }}"]
+hash_password: "{{ HASH_PASSWORD }}"

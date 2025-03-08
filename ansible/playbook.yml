@@ -1,12 +1,7 @@
 # ansible/playbook.yml
 ---
-- hosts: all
-  pre_tasks:
-    - name: Ensure passlib is installed (local)
-      delegate_to: localhost
-      become: true
-      pip:
-        name: passlib
-        state: present
+- name: Configure VPS
+  hosts: all
+  become: yes
   roles:
     - server-setup
