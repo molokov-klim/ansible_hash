@@ -27,45 +27,6 @@
     state: present
   become: yes
 
-- name: Install passlib in Ansible's Python environment
-  pip:
-    name: passlib
-    executable: /opt/pipx/venvs/ansible-core/bin/pip
-  become: yes
-
-- name: Validate Python environment
-  command: python3 -c "import passlib; print(passlib.__version__)"
-  register: passlib_check
-  changed_when: false
-  ignore_errors: yes
-
-- name: Debug passlib status
-  debug:
-    msg: "Passlib version: {{ passlib_check.stdout | default('NOT FOUND') }}"
-
-- name: Debug Ansible Python interpreter
-  debug:
-    msg: "Ansible Python interpreter: {{ ansible_playbook_python }}"
-
-- name: Check if passlib is available for Ansible
-  command: /opt/pipx/venvs/ansible-core/bin/python -c "import passlib; print(passlib.__version__)"
-  register: ansible_passlib_check
-  changed_when: false
-  ignore_errors: yes
-
-- name: Debug Ansible passlib availability
-  debug:
-    msg: "Ansible passlib check: {{ ansible_passlib_check.stdout }}"
-
-- name: Check Python paths
-  command: python3 -c "import sys; print(sys.path)"
-  register: python_paths
-  changed_when: false
-
-- name: Debug Python paths
-  debug:
-    msg: "Python paths: {{ python_paths.stdout }}"
-
 - name: Ensure the hash user exists
   ansible.builtin.user:
     name: hash
@@ -73,8 +34,6 @@
     shell: /bin/bash
     create_home: yes
     state: present
-  vars:
-    ansible_python_interpreter: /usr/bin/python3
 
 - name: Add hash user to sudoers
   ansible.builtin.lineinfile:
