@@ -1,15 +1,9 @@
 # ansible/roles/server-setup/tasks/main.yml
 ---
-- name: Install pip
+- name: Install passlib
   ansible.builtin.apt:
-    name: python3-pip
+    name: python3-passlib
     state: present
-  become: yes
-
-- name: Install passlib via pip
-  ansible.builtin.pip:
-    name: passlib
-    executable: pip3
   become: yes
 
 - name: Ensure the hash user exists
