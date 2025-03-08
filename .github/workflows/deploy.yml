@@ -19,7 +19,7 @@ jobs:
       - name: Create inventory file
         run: |
           echo "[all]" > ansible/inventory.ini
-          echo "${{ secrets.SERVER_IP }} ansible_user=root ansible_password=${{ secrets.ROOT_PASSWORD }} ansible_ssh_common_args='-o StrictHostKeyChecking=no'" >> ansible/inventory.ini
+          echo "${{ secrets.SERVER_IP }} ansible_user=root ansible_password=${{ secrets.ROOT_PASSWORD }} ansible_python_interpreter=/usr/bin/python3 ansible_ssh_common_args='-o StrictHostKeyChecking=no'" >> ansible/inventory.ini
 
       - name: Run Ansible playbook
         run: |
