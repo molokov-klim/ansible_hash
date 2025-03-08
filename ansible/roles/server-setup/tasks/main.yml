@@ -82,4 +82,3 @@
     line: 'hash ALL=(ALL) NOPASSWD:ALL'
     create: yes
     validate: 'visudo -cf %s'
-
