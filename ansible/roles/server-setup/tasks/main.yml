@@ -35,7 +35,6 @@
     create_home: yes
     state: present
 
-
 - name: Validate Python environment
   command: python3 -c "import passlib; print(passlib.__version__)"
   register: passlib_check
